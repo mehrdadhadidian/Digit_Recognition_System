@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 
+alfa = 1
 class triplet_loss(nn.Module):
     def __init__(self, margin: float = 0.005, device = torch.device('cpu')) -> None:
         super().__init__()
@@ -18,14 +19,16 @@ class triplet_loss(nn.Module):
 
     # Compelete this function
     def forward(self, embeddings, labels):
-        """
-        embeddings: [M, d] M is the batch size, d is the dimension of the embeddings (dimension of the layer before the last layer)
-        embeddings are supposed to be outputs of the layer before the last layer. 
-
-        labels: [M, ]
-        """
         
-        triplet_loss = ...
+        dp , dn   = self.batch_hard_triplet_loss(embeddings,labels)
+        diffrent  = dp - dn 
+        diffrent1  = diffrent + alfa
+        
+        #max 0 and diffrent
+        # with torch.no_grad():
+        #     diffrent2  = torch.relu(diffrent1)
+        diffrent2 = torch.max(diffrent1,torch.zeros((diffrent1.shape[0])))
+        triplet_loss = torch.mean(diffrent2)
 
         return triplet_loss
 
